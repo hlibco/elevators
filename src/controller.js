@@ -51,10 +51,10 @@ class Controller {
     // Request made from inside the elevator (It's a Drop Off request)
     if (typeof elevatorIdx !== 'undefined') {
       elevator = this.elevators[elevatorIdx]
-      ETA = elevator.getETA(floor)
-      Debug(`REQ [E ${elevatorIdx}] Dropoff @ ${floor}`)
+      ETA = elevator.getMaxETA(floor, direction)
+      Debug(`REQ Dropoff @ ${floor} [E ${elevatorIdx}] | ${ETA.direction}`)
       Debug('---------------------------------')
-      Debug(`ETA [E ${elevatorIdx}]:`, ETA)
+      Debug(`ETA [E ${elevatorIdx}]:`, `${ETA.time} | ${ETA.direction} (${ETA.floor})`)
     } else {
       Debug(`REQ Pickup @ ${floor} [${direction}]`)
       Debug('---------------------------------')
@@ -62,13 +62,13 @@ class Controller {
       let minETA
       for (let i = 0; i < this.config.elevators; i++) {
         elevator = this.elevators[i]
-        ETA = elevator.getETA(floor)
-        Debug(`ETA [E ${i}]:`, ETA)
+        ETA = elevator.getMaxETA(floor, direction)
+        Debug(`ETA [E ${i}]:`, `${ETA.time} | ${ETA.direction}`)
         if (i === 0) {
-          minETA = ETA
+          minETA = ETA.time
           elevatorIdx = i
-        } else if (ETA < minETA) {
-          minETA = ETA
+        } else if (ETA.time < minETA) {
+          minETA = ETA.time
           elevatorIdx = i
         }
       }

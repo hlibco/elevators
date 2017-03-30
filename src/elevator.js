@@ -1,10 +1,12 @@
 'use strict'
 
+// const Debug = require('debug')('elevators:elevator')
 const Constants = require('./constants')
 
 class Elevator {
   constructor (id, emmit, config) {
     this.id = id
+    this.config = config
 
     /*
     Current floor the elevator is located at
@@ -24,6 +26,83 @@ class Elevator {
     // this.occupancy = 0
   }
 
+  /**
+   * Calculate the maximum ETA in terms of moves
+   * based on the worse case:
+   * The elevator goes until the end of the track
+   * before changing direction.
+   * This is helpful to allocate idle lifts instead of
+   * relying on the number of movements queued by their peers.
+   * @param {integer} floor where the elevator has to stop
+   * @param {enum} requestedDirection (UP | DOWN)
+   */
+  getMaxETA (floor, requestedDirection) {
+    let moves = 0
+    if (!requestedDirection) {
+      requestedDirection = floor > this.floor ? Constants.UP : Constants.DOWN
+    }
+
+    // Elevator is moving UP
+    if (this.direction === Constants.UP) {
+      // Request to go UP
+      if (requestedDirection === Constants.UP) {
+        if (floor > this.floor) {
+          moves = Math.abs(floor - this.floor)
+        } else {
+          // 1. reaches the highest floor in the building
+          moves += Math.abs(this.floor - this.config.maxFloor)
+          // 2. reaches the lowest floor in the building
+          moves += Math.abs(this.config.maxFloor - this.config.minFloor)
+          // 3. reaches the requested floor
+          moves += Math.abs(this.config.minFloor - floor)
+        }
+      // Request to go DOWN
+      } else {
+        // 1. reaches the highest floor in the building
+        moves += Math.abs(this.config.maxFloor - this.floor)
+        // 2. reaches the requested floor
+        moves += Math.abs(this.config.maxFloor - floor)
+      }
+    // Elevator is moving DOWN
+    } else if (this.direction === Constants.DOWN) {
+      // Request to go DOWN
+      if (requestedDirection === Constants.DOWN) {
+        if (floor < this.floor) {
+          moves = Math.abs(this.floor - floor)
+        } else {
+          // 1. reaches the lowest floor in the building
+          moves += Math.abs(this.floor - this.config.minFloor)
+          // 2. reaches the highest floor in the building
+          moves += Math.abs(this.config.minFloor - this.config.maxFloor)
+          // 3. reaches the requested floor
+          moves += Math.abs(this.config.maxFloor - floor)
+        }
+      // Request to go UP
+      } else {
+        // 1. reaches the lowest floor in the building
+        moves += Math.abs(this.floor - this.config.minFloor)
+        // 2. reaches the requested floor
+        moves += Math.abs(this.config.minFloor - floor)
+      }
+    // If the elevator is idle
+    } else {
+      moves = Math.abs(this.floor - floor)
+    }
+
+    return {
+      time: moves * this.config.speed,
+      floor: this.floor,
+      direction: this.direction || 'IDLE' // current direction
+    }
+  }
+
+  /**
+   * @DEPRECATED
+   * Creates the ETA based on a positve scenario:
+   * No requests will be received extending
+   * the travel in the current direction in order to impact
+   * future travels in the opposite direction
+   */
   getETA (floor, requestedDirection) {
     let moves = 0
 
@@ -63,7 +142,7 @@ class Elevator {
         } else {
           // 1. reaches the min floor in the queueDown
           let lowerFloorDown = this.queueDown[this.queueDown.length - 1]
-          moves += this.floor - lowerFloorDown
+          moves += Math.abs(this.floor - lowerFloorDown)
           // 2. reaches the max floor in the queueUp
           let higherFloorUp = this.queueUp[this.queueUp.length - 1] || lowerFloorDown
           moves += Math.abs(lowerFloorDown - higherFloorUp)
@@ -78,7 +157,7 @@ class Elevator {
         // 2. reaches the min floor in the queueUp
         let higherFloorUp = this.queueUp[this.queueUp.length - 1] || lowerFloorDown
         moves += Math.abs(higherFloorUp - lowerFloorDown)
-        // 2. reaches the requested floor
+        // 3. reaches the requested floor
         moves += Math.abs(lowerFloorDown - floor)
       }
     // If the elevator is idle
@@ -86,14 +165,7 @@ class Elevator {
       moves = Math.abs(this.floor - floor)
     }
 
-    return moves
-  }
-
-  trace (requestId, travelIdx, moves) {
-    this.tracing[requestId].moves += moves
-    this.tracing[requestId].travelIdx = travelIdx
-
-    return this.tracing[requestId]
+    return moves * this.config.speed
   }
 
   AddQueueUp (floor) {
@@ -170,6 +242,13 @@ class Elevator {
       floor: this.floor,
       direction: this.direction
     }
+  }
+
+  trace (requestId, travelIdx, moves) {
+    this.tracing[requestId].moves += moves
+    this.tracing[requestId].travelIdx = travelIdx
+
+    return this.tracing[requestId]
   }
 
   report () {

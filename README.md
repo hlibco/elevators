@@ -24,13 +24,14 @@ This implementation allocates elevators to serve each request in a building in t
 ## Constraints
 
 - The capacity of each elevator is immutable and the same for all elevators **(Infinity for now)**.
-- Each request is considered **only** 1 user going from A to B.
+- Each request is considered **only** 1 user going from origin to destination.
 - The user DOES NOT provide the final destination at the time of the pickup request.
 - All elevators move at the same speed.
 - The acceleration and breaking times are not considered (it means, elevators start moving and stop instantaneously).
 - The stop times (time to open/close doors and people get on/off) are the same for all elevators on every floor.
 - This implementation is not optimized for peak hours (9am / 11am - 1pm / 5pm).
 - Requests do not follow any kind of distribution but are totally random over the day and floors (hypothetically).
+- All floors have a numeric identifier, where 0 is the ground, positive integers up to the top and negative integers up to the lowest level.
 
 ---
 
