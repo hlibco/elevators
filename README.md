@@ -26,10 +26,14 @@ The elevator reports its status to the controller when:
 ### About the elevator system
 
 **Estimated Time of Arrival (ETA)**
+
 For the sake of simplicity, the number of stops already provisioned between the floor the elevator is currently traversing and the floor the user is located at is not being taken into consideration.
 
 I implemented 2 ways to calculate the ETA but deprecated one of them:
-**In use:** Pessimist - It considers that more requests will come in order to fill up all queues used in the travel itinerary.
+
+**In use:**
+
+Pessimist - It considers that more requests will come in order to fill up all queues used in the travel itinerary.
 Example:
 User: Floor 2 wants to go UP
 Elevator: Floor 5 going UP
@@ -41,7 +45,10 @@ The max number of stops will be:
 0 -> 2 [queue up] = 2
 Total = 21 stops
 
-**Deprecated:** Optimistic - It considers the current path the lift will take IF there is no other requests that extend the current and future travels which may impact the ETA.
+
+**Deprecated:**
+
+Optimistic - It considers the current path the lift will take IF there is no other requests that extend the current and future travels which may impact the ETA.
 
 
 How to dispatch a Pickup / Drop off request?
