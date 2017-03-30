@@ -5,15 +5,51 @@
 
 ## Context
 
+This project implements an elevator system where users indicate the direction of their destination at the time of the request. The direction of the destination is relative to the floor they are located at. While inside the lift cabin, it's possible to choose the destination floor to be dropped off.
+
+---
+
+## Design
+
+Each elevator has its own queues to store the floors the elevator has to stop. Two queues are used per elevator.
+1. Queue of floors with users who want to go UP
+2. Queue of floors with users who want to go DOWN
+
+There is a controller responsible to scan the elevators (query them) in order to find the one with the smallest most predictable ETA.
+
+The elevator reports its status to the controller when:
+- After receiving a pickup / drop off request
+- On each stop
+
+---
+
 ### About the elevator system
+
+**Estimated Time of Arrival (ETA)**
+For the sake of simplicity, the number of stops already provisioned between the floor the elevator is currently traversing and the floor the user is located at is not being taken into consideration.
+
+I implemented 2 ways to calculate the ETA but deprecated one of them:
+**In use:** Pessimist - It considers that more requests will come in order to fill up all queues used in the travel itinerary.
+Example:
+User: Floor 2 wants to go UP
+Elevator: Floor 5 going UP
+Building: 12 floors
+
+The max number of stops will be:
+5 -> 12 [queue up] = 7
+12 -> 0 [queue down] = 12
+0 -> 2 [queue up] = 2
+Total = 21 stops
+
+**Deprecated:** Optimistic - It considers the current path the lift will take IF there is no other requests that extend the current and future travels which may impact the ETA.
+
 
 How to dispatch a Pickup / Drop off request?
 - Pickups are requested by users on the floor they are located at, only mentioning the direction they want to move towards
 - Drop offs are requested by users when they are inside the elevator
 
 This implementation allocates elevators to serve each request in a building in the following manner:
-
-- An elevator first serves requests in the same direction it's going to and putting on hold requests for the opposite direction.
+- An elevator first serves requests in the same direction it's going to (if the requested floor is ahead) and putting on hold requests for the opposite direction.
 
 ### (TODO)
 - Serving the requests according to the SLA (service level agreement) that sets the maximum waiting time from the request and the pick up.
