@@ -7,24 +7,13 @@ const Controller = require('./controller')
 
 const controller = new Controller(Config)
 
-controller.elevators = [
-  {
-    dir: Constants.DOWN,
-    floor: 19,
-    travels: [
-      [ // up
-        [2, 5], // pickups
-        [4, 7]  // dropoffs
-      ],
-      [ // down
-        [5, 3],
-        [2, 1]
-      ]
-    ]
-  }
-]
-controller.request(10, 1)
-controller.request(3, 7)
-controller.request(4, 1)
+controller.pickup(10, Constants.UP)
+controller.dropoff(12, 0)
+
+controller.pickup(8, Constants.UP)
+controller.dropoff(15, 0)
+
+controller.pickup(20, Constants.DOWN)
+controller.pickup(17, Constants.DOWN)
 
 Debug(controller.getStatus())

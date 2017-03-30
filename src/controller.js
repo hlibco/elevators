@@ -38,43 +38,62 @@ class Controller {
   }
 
   /**
-   * Find the nearest elevator
+   * Pickup / Drop off request
+   * @param {integer} floor where the elevator has to stop
+   * @param {integer} elevatorIdx only used on drop off requests
+   * @return {Object} {ETA: integer (number of moves), elevatorIdx: integer}
    */
-  request (floor) {
+  request (floor, direction, elevatorIdx) {
     let ETA
-    let minETA
     let elevator
-    let elevatorIdx
-    for (let i = 0; i < this.config.elevators; i++) {
-      elevator = this.elevators[i]
-      ETA = elevator.getETA(floor)
+    let result
 
-      if (i === 0) {
-        minETA = ETA
-        elevatorIdx = i
-      } else if (ETA < minETA) {
-        minETA = ETA
-        elevatorIdx = i
+    // Request made from inside the elevator (It's a Drop Off request)
+    if (typeof elevatorIdx !== 'undefined') {
+      elevator = this.elevators[elevatorIdx]
+      ETA = elevator.getETA(floor)
+      Debug(`REQ [E ${elevatorIdx}] Dropoff @ ${floor}`)
+      Debug('---------------------------------')
+      Debug(`ETA [E ${elevatorIdx}]:`, ETA)
+    } else {
+      Debug(`REQ Pickup @ ${floor} [${direction}]`)
+      Debug('---------------------------------')
+      // Find the Nearest Car (NC) for Pickup
+      let minETA
+      for (let i = 0; i < this.config.elevators; i++) {
+        elevator = this.elevators[i]
+        ETA = elevator.getETA(floor)
+        Debug(`ETA [E ${i}]:`, ETA)
+        if (i === 0) {
+          minETA = ETA
+          elevatorIdx = i
+        } else if (ETA < minETA) {
+          minETA = ETA
+          elevatorIdx = i
+        }
       }
+      elevator = this.elevators[elevatorIdx]
     }
+    Debug('---------------------------------')
+    Debug(`Assign: E ${elevatorIdx}`)
+    Debug('---------------------------------')
+
+    result = elevator.request(floor, direction)
 
     // @NOTE ETA is in number of moves (not in TIME! TBD)
     return {
       ETA,
+      result,
       elevatorIdx
     }
   }
 
-  assign (requestId, car) {
-    // if (origin < destination) {
-    //   this.queueUp.push(origin)
-    //   this.queueUp.push(destination)
-    //   this.queueUp.sort((a, b) => (a - b))
-    // } else {
-    //   this.queueDown.push(origin)
-    //   this.queueDown.push(destination)
-    //   this.queueDown.sort((a, b) => (b - a))
-    // }
+  pickup (floor, direction) {
+    return this.request(floor, direction)
+  }
+
+  dropoff (floor, elevatorIdx) {
+    return this.request(floor, undefined, elevatorIdx)
   }
 
   reporter (payload) {
@@ -93,7 +112,7 @@ class Controller {
       this.elevators.map((elevator, i) => {
         status[i] = elevator.getStatus()
       })
-      return status
+      return JSON.stringify(status)
     }
   }
 }

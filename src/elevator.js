@@ -11,7 +11,7 @@ class Elevator {
     */
     this.floor = config.minFloor // all elevators will start the service on the lowest floor
     this.emmit = emmit
-    this.direction = Constants.IDLE // IDLE, UP, DOWN
+    this.direction = null // UP, DOWN
 
     this.queueUp = [] // floors to stop when the elevator is going up
     this.queueDown = [] // floors to stop when the elevator is going down
@@ -82,8 +82,8 @@ class Elevator {
         moves += Math.abs(lowerFloorDown - floor)
       }
     // If the elevator is idle
-    } else if (this.direction === Constants.IDLE) {
-      moves = this.floor - floor
+    } else {
+      moves = Math.abs(this.floor - floor)
     }
 
     return moves
@@ -96,45 +96,43 @@ class Elevator {
     return this.tracing[requestId]
   }
 
-  request (origin, destination) {
-    switch (this.direction) {
-      case Constants.UP:
-        // user wants to go up
-        if (origin < destination) {
-          this.queue.push(origin)
-          this.queue.push(destination)
-          this.queue.sort((a, b) => (a - b))
+  AddQueueUp (floor) {
+    this.queueUp.push(floor)
+    this.queueUp.sort((a, b) => (a - b))
+  }
+
+  AddQueueDown (floor) {
+    this.queueDown.push(floor)
+    this.queueDown.sort((a, b) => (b - a))
+  }
+
+  request (floor, direction) {
+    // Direction set means Pickup request
+    if (direction === Constants.UP) {
+      this.AddQueueUp(floor)
+    } else if (direction === Constants.UP) {
+      this.AddQueueDown(floor)
+
+    // Direction is not set means it is a dropoff request
+    } else {
+      if (this.direction === Constants.UP) {
+        // On the way
+        if (this.floor < floor) {
+          this.AddQueueUp(floor)
         } else {
-          this.queue.push(origin)
-          this.queue.push(destination)
+          this.AddQueueDown(floor)
         }
-        break
-      case Constants.DOWN:
-        // user wants to go down
-        if (origin > destination) {
-          this.queue.push(origin)
-          this.queue.push(destination)
-          this.queue.sort((a, b) => (b - a))
+      } else if (this.direction === Constants.DOWN) {
+        // On the way
+        if (this.floor > floor) {
+          this.AddQueueDown(floor)
         } else {
-          this.queue.push(origin)
-          this.queue.push(destination)
+          this.AddQueueUp(floor)
         }
-        break
-      default:
-        this.queue.push(origin)
-        this.queue.push(destination)
+      }
     }
 
     this.setDirection()
-    return this
-  }
-
-  updateStops (origin, destination) {
-    if (!this.stops.get(origin)) {
-      this.stops.set(origin, {
-        pickup: true
-      })
-    }
   }
 
   stop (floor) {
@@ -148,11 +146,11 @@ class Elevator {
       this.queueDown.pop()
     }
 
-    return this
+    this.setDirection()
   }
 
   setDirection () {
-    let direction = Constants.IDLE
+    let direction = null
 
     if (this.queueUp.length > 0 && this.direction !== Constants.DOWN) {
       direction = Constants.UP
@@ -165,22 +163,25 @@ class Elevator {
 
   getStatus () {
     return {
-      queue: this.queue,
-      direction: this.direction,
-      currentFloor: this.currentFloor
+      queues: {
+        up: this.queueUp,
+        down: this.queueDown
+      },
+      floor: this.floor,
+      direction: this.direction
     }
   }
 
   report () {
     this.reporter({
       id: this.id,
-      queue: this.queue,
+      queues: {
+        up: this.queueUp,
+        down: this.queueDown
+      },
       direction: this.direction,
-      occupancy: this.occupancy,
       currentFloor: this.currentFloor
     })
-
-    return this
   }
 }
 

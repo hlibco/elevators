@@ -1,7 +1,7 @@
 const config = {
   minFloor: 0, // ground floor
   maxFloor: 40, // pent house \o/
-  elevators: 1 // # of elevators in the building
+  elevators: 3 // # of elevators in the building
 
   // @NOTE can be tweaked to use "maxLoad"
   // @TODO Implement later
