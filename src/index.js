@@ -16,4 +16,7 @@ controller.dropoff(15, 0)
 controller.pickup(20, Constants.DOWN)
 controller.pickup(17, Constants.DOWN)
 
+Debug('---------------------------------')
+Debug('Current allocation')
+Debug('---------------------------------')
 Debug(controller.getStatus())
