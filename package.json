@@ -1,0 +1,82 @@
+{
+  "name": "elevators",
+  "description": "Allocate elevators to serve requests reducing the Average Waiting Time and number of stops between the origin and the final destination.",
+  "version": "0.1.0",
+  "author": "Felipe Hlibco <hlibco@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hlibco/elevators.git"
+  },
+  "bugs": "https://github.com/hlibco/elevators.git/issues",
+  "homepage": "https://github.com/hlibco/elevators#readme",
+  "engines": {
+    "npm": ">=6",
+    "node": ">=6"
+  },
+  "main": "./src/index",
+  "license": "MIT",
+  "scripts": {
+    "lint": "standard --verbose src/**/*.js tests/**/*.js | snazzy",
+    "_pretest": "npm run lint",
+    "test": "NODE_ENV=test DEBUG=test,elevators:* DEBUG_COLORS=true ava",
+    "check": "nsp check",
+    "start": "nodemon",
+    "coverage": "nyc npm test",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
+  },
+  "pre-commit": "lint",
+  "ava": {
+    "files": [
+      "tests/**/*.js",
+      "!tests/**/_*.js"
+    ],
+    "concurrency": 5,
+    "failFast": true,
+    "verbose": true,
+    "tap": false
+  },
+  "nyc": {
+    "lines": 30,
+    "statements": 30,
+    "functions": 30,
+    "branches": 30,
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "src/**/*.spec.js"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text-summary"
+    ],
+    "cache": true,
+    "all": true,
+    "check-coverage": true,
+    "report-dir": "./coverage"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "it",
+      "expect"
+    ]
+  },
+  "dependencies": {
+    "ava": "0.17.0",
+    "debug": "2.6.2"
+  },
+  "devDependencies": {
+    "coveralls": "2.12.0",
+    "nodemon": "1.11.0",
+    "nyc": "10.0.0",
+    "pre-commit": "1.2.2",
+    "snazzy": "5.0.0",
+    "standard": "8.6.0"
+  },
+  "keywords": [
+    "elevators",
+    "allocation"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "ignore": [
+    ".git",
+    "node_modules"
+  ],
+  "verbose": true,
+  "watch": [
+    "src"
+  ],
+  "env": {
+    "NODE_ENV": "development",
+    "PORT": "3002",
+    "DEBUG": "elevators:*",
+    "DEBUG_COLORS": true
+  },
+  "exec": "node src/index.js"
+}
