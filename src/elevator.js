@@ -4,15 +4,15 @@
 const Constants = require('./constants')
 
 class Elevator {
-  constructor (id, emmit, config) {
+  constructor (id, reporter, config) {
     this.id = id
     this.config = config
+    this.reporter = reporter
 
     /*
     Current floor the elevator is located at
     */
     this.floor = config.minFloor // all elevators will start the service on the lowest floor
-    this.emmit = emmit
     this.direction = null // UP, DOWN
 
     this.queueUp = [] // floors to stop when the elevator is going up
@@ -205,6 +205,7 @@ class Elevator {
     }
 
     this.setDirection()
+    this.report()
   }
 
   stop (floor) {
@@ -219,6 +220,7 @@ class Elevator {
     }
 
     this.setDirection()
+    this.report()
   }
 
   setDirection () {
@@ -258,8 +260,8 @@ class Elevator {
         up: this.queueUp,
         down: this.queueDown
       },
-      direction: this.direction,
-      currentFloor: this.currentFloor
+      floor: this.floor,
+      direction: this.direction
     })
   }
 }

@@ -97,7 +97,8 @@ class Controller {
   }
 
   reporter (payload) {
-    Debug(payload)
+    // Debug(payload)
+    Debug(`>> STATS`, `[E ${payload.id}] @ ${payload.floor} [${payload.direction}] \r\n ======================================================================`)
   }
 
   getStatus (elevatorIdx) {
