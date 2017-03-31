@@ -1,6 +1,7 @@
 'use strict'
 
 const Debug = require('debug')('elevators:controller')
+const Emitter = require('./emitter')
 const Elevator = require('./elevator')
 const Constants = require('./constants')
 
@@ -15,26 +16,39 @@ class Controller {
     this.requests = new Map()
     this.elevators = []
 
-    /*
-    Map
-    {
-      10th floor => {
-        up:
-      }
-    }
-    */
-    this.floors = []
+    // Subscribe to events
+    this.subscribe()
 
+    // Register elevators
     if (parseInt(config.elevators) <= 0) {
       throw Error(Constants.ERROR_INVALID_NUMBER_OF_ELEVATORS)
     }
     for (let i = 0; i < config.elevators; i++) {
+      if ((config.repair || []).indexOf(i) !== -1) { continue }
       this.register(new Elevator(i, this.reporter, config))
     }
   }
 
+  /**
+   * Subscribe to events emitted by elevators
+   */
+  subscribe () {
+    // Elevator is loading / off-loading
+    Emitter.on(Constants.HANDLING, data => {
+      Debug('HANDLING:', data)
+    })
+  }
+
   register (elevator) {
     this.elevators.push(elevator)
+  }
+
+  pickup (floor, direction) {
+    return this.request(floor, direction)
+  }
+
+  dropoff (floor, elevatorIdx) {
+    return this.request(floor, undefined, elevatorIdx)
   }
 
   /**
@@ -58,18 +72,19 @@ class Controller {
     } else {
       Debug(`REQ Pickup @ ${floor} [${direction}]`)
       Debug('---------------------------------')
-      // Find the Nearest Car (NC) for Pickup
+      // Find the "Nearest Car" (NC) for Pickup
+      // based on the principles defined in the Readme
       let minETA
-      for (let i = 0; i < this.config.elevators; i++) {
+      for (let i = 0; i < this.elevators.length; i++) {
         elevator = this.elevators[i]
         ETA = elevator.getMaxETA(floor, direction)
         Debug(`ETA [E ${i}]:`, `${ETA.time} | ${ETA.direction}`)
         if (i === 0) {
           minETA = ETA.time
-          elevatorIdx = i
+          elevatorIdx = elevator.getId()
         } else if (ETA.time < minETA) {
           minETA = ETA.time
-          elevatorIdx = i
+          elevatorIdx = elevator.getId()
         }
       }
       elevator = this.elevators[elevatorIdx]
@@ -84,7 +99,8 @@ class Controller {
     return {
       elevator: {
         id: elevatorIdx,
-        floor: ETA.floor
+        floor: ETA.floor,
+        direction: ETA.direction
       },
       request: {
         stopAt: floor,
@@ -92,14 +108,6 @@ class Controller {
       },
       response
     }
-  }
-
-  pickup (floor, direction) {
-    return this.request(floor, direction)
-  }
-
-  dropoff (floor, elevatorIdx) {
-    return this.request(floor, undefined, elevatorIdx)
   }
 
   reporter (payload) {
@@ -118,11 +126,11 @@ class Controller {
     } else {
       status = {}
       this.elevators.map((elevator, i) => {
-        status[i] = elevator.getStatus()
+        status[elevator.getId()] = elevator.getStatus()
       })
     }
 
-    return JSON.stringify(status)
+    return status
   }
 }
 

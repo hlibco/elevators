@@ -32,11 +32,11 @@ express.use(BodyParser.json())
 express.use('/', router)
 
 router.get(version + '/pickup/:floor/:direction', (req, res) => {
-  res.json(ECS.pickup(req.params.floor, req.params.direction.toUpperCase()))
+  res.json(ECS.pickup(parseInt(req.params.floor), req.params.direction.toUpperCase()))
 })
 
 router.get(version + '/dropoff/:floor/:elevatorIdx', (req, res) => {
-  res.json(ECS.dropoff(req.params.floor, req.params.elevatorIdx))
+  res.json(ECS.dropoff(parseInt(req.params.floor), parseInt(req.params.elevatorIdx)))
 })
 
 router.get(version + '/status/:elevatorIdx?', (req, res) => {

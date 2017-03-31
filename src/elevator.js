@@ -2,6 +2,8 @@
 
 // const Debug = require('debug')('elevators:elevator')
 const Constants = require('./constants')
+const Emitter = require('./emitter')
+
 const DOWN = Constants.DOWN
 const UP = Constants.UP
 
@@ -27,6 +29,16 @@ class Elevator {
     // @TODO Map requests Up/Down made inside/outside the elevator
     // in order to distingquish Pickups and Dropoffs
     // this.occupancy = 0
+
+    Emitter.emit(Constants.HANDLING, {
+      id: this.id,
+      floor: this.floor,
+      direction: this.direction
+    })
+  }
+
+  getId () {
+    return this.id
   }
 
   /**
@@ -255,13 +267,6 @@ class Elevator {
       floor: this.floor,
       direction: this.direction
     }
-  }
-
-  trace (requestId, travelIdx, moves) {
-    this.tracing[requestId].moves += moves
-    this.tracing[requestId].travelIdx = travelIdx
-
-    return this.tracing[requestId]
   }
 
   report () {

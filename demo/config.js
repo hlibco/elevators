@@ -5,7 +5,8 @@ const config = {
   elevators: 3, // # of elevators
 
   // Elevators settings
-  speed: 1 // speed of the elevators (# of floors / unit of time)
+  speed: 1, // speed of the elevators (# of floors / unit of time)
+  repair: [1] // Elevators under maintenance
 
   // @NOTE can be tweaked to use "maxLoad"
   // @TODO Implement later
