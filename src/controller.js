@@ -25,7 +25,7 @@ class Controller {
     }
     for (let i = 0; i < config.elevators; i++) {
       if ((config.repair || []).indexOf(i) !== -1) { continue }
-      this.register(new Elevator(i, this.reporter, config))
+      this.register(new Elevator(i, config))
     }
   }
 

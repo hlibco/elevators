@@ -16,7 +16,7 @@ module.exports = (instance) => {
 }
 
 /**
- * Setup webserver
+ * Setup web server
  */
 express.set('port', port)
 
@@ -25,27 +25,36 @@ express.set('port', port)
  */
 express.use(BodyParser.urlencoded({ extended: true }))
 express.use(BodyParser.json())
+express.use('/', router)
 
 /**
  * Exposing the API
  */
-express.use('/', router)
+const routes = {
+  'status': version + '/status/:elevatorId?',
+  'pickup': version + '/pickup/:floor/:direction',
+  'dropoff': version + '/dropoff/:floor/:elevatorId'
+}
 
-router.get(version + '/pickup/:floor/:direction', (req, res) => {
+router.get('/', (req, res) => {
+  res.json(routes)
+})
+
+router.get(routes.pickup, (req, res) => {
   res.json(ECS.pickup(parseInt(req.params.floor), req.params.direction.toUpperCase()))
 })
 
-router.get(version + '/dropoff/:floor/:elevatorIdx', (req, res) => {
-  res.json(ECS.dropoff(parseInt(req.params.floor), parseInt(req.params.elevatorIdx)))
+router.get(routes.dropoff, (req, res) => {
+  res.json(ECS.dropoff(parseInt(req.params.floor), parseInt(req.params.elevatorId)))
 })
 
-router.get(version + '/status/:elevatorIdx?', (req, res) => {
-  res.json(ECS.getStatus(req.params.elevatorIdx))
+router.get(routes.status, (req, res) => {
+  res.json(ECS.getStatus(req.params.elevatorId))
 })
 
 /**
  * Start the server
  */
 express.listen(port, () => {
-  Debug(`Server is running on port ${port}`)
+  Debug(`Server is running on port ${port} | http://localhost:${port}`)
 })

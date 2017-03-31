@@ -12,7 +12,7 @@ const DOWN = ECS.constants.UP
 // Create a controller instance
 const controller = new ECS(Config)
 
-// Bring a web server to the game
+// Add the controller to the web server
 ECS.server(controller)
 
 /**

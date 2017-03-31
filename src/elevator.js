@@ -8,11 +8,10 @@ const DOWN = Constants.DOWN
 const UP = Constants.UP
 
 class Elevator {
-  constructor (id, reporter, config) {
+  constructor (id, config) {
     this.id = id
     this.state =
     this.config = config
-    this.reporter = reporter
 
     /*
     Current floor the elevator is located at
@@ -29,12 +28,6 @@ class Elevator {
     // @TODO Map requests Up/Down made inside/outside the elevator
     // in order to distingquish Pickups and Dropoffs
     // this.occupancy = 0
-
-    Emitter.emit(Constants.HANDLING, {
-      id: this.id,
-      floor: this.floor,
-      direction: this.direction
-    })
   }
 
   getId () {
@@ -200,7 +193,7 @@ class Elevator {
     } else if (direction === UP) {
       this.AddQueueDown(floor)
 
-    // Direction is not set means it is a dropoff request
+    // Undefined direction means it is a dropoff request
     } else {
       if (this.direction === UP) {
         // On the way
@@ -221,6 +214,7 @@ class Elevator {
 
     this.setDirection()
     this.report()
+    return true
   }
 
   /**
@@ -260,34 +254,18 @@ class Elevator {
 
   getStatus () {
     return {
+      id: this.id,
+      floor: this.floor,
+      direction: this.direction,
       queues: {
         up: this.queueUp,
         down: this.queueDown
-      },
-      floor: this.floor,
-      direction: this.direction
+      }
     }
   }
 
   report () {
-    this.reporter({
-      id: this.id,
-      queues: {
-        up: this.queueUp,
-        down: this.queueDown
-      },
-      floor: this.floor,
-      direction: this.direction
-    })
-  }
-
-  handler (req, res) {
-    const data = {
-      status: 'OK'
-    }
-    res.writeHead(200, {'Content-Type': 'application/json'})
-    res.write(data)
-    res.end()
+    Emitter.emit(this.getStatus())
   }
 }
 

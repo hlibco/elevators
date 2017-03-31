@@ -6,7 +6,7 @@ const Config = require('../demo/config')
 // ELEVATOR UP
 // =======================
 test(`ETA - elevator is going UP, user is going UP (on the way)`, t => {
-  const elevator = new Elevator(0, null, Config)
+  const elevator = new Elevator(0, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
 
@@ -18,7 +18,7 @@ test(`ETA - elevator is going UP, user is going UP (on the way)`, t => {
 })
 
 test(`ETA - elevator is going UP, user is going UP (not on the way)`, t => {
-  const elevator = new Elevator(0, null, Config)
+  const elevator = new Elevator(0, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
   const requestedFloor = 2
@@ -32,7 +32,7 @@ test(`ETA - elevator is going UP, user is going UP (not on the way)`, t => {
 })
 
 test(`ETA - elevator is going UP, user is going DOWN (on the way)`, t => {
-  const elevator = new Elevator(0, null, Config)
+  const elevator = new Elevator(0, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
   const requestedFloor = 5
@@ -46,7 +46,7 @@ test(`ETA - elevator is going UP, user is going DOWN (on the way)`, t => {
 })
 
 test(`ETA - elevator is going UP, user is going DOWN (not on the way)`, t => {
-  const elevator = new Elevator(0, null, Config)
+  const elevator = new Elevator(0, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
   const requestedFloor = 2
@@ -62,7 +62,7 @@ test(`ETA - elevator is going UP, user is going DOWN (not on the way)`, t => {
 // ELEVATOR DOWN
 // =======================
 test(`ETA - elevator is going DOWN, user is going DOWN (on the way)`, t => {
-  const elevator = new Elevator(0, null, Config)
+  const elevator = new Elevator(0, Config)
   elevator.floor = 30
   elevator.direction = Constants.DOWN
 
@@ -74,7 +74,7 @@ test(`ETA - elevator is going DOWN, user is going DOWN (on the way)`, t => {
 })
 
 test(`ETA - elevator is going DOWN, user is going DOWN (not on the way)`, t => {
-  const elevator = new Elevator(0, null, Config)
+  const elevator = new Elevator(0, Config)
   elevator.floor = 15
   elevator.direction = Constants.DOWN
   const requestedFloor = 17
