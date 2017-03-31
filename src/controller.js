@@ -35,18 +35,37 @@ class Controller {
   subscribe () {
     // Elevator is loading / off-loading
     Emitter.on(Constants.HANDLING, data => {
-      Debug('HANDLING:', data)
+      // Debug('HANDLING:', data)
+      Debug(`>> HANDLING`, `[E ${data.id}] @ ${data.floor} [${data.direction}] \r\n ======================================================================`)
+    })
+
+    // Elevator status
+    Emitter.on(Constants.EV_STATUS, data => {
+      Debug(`>> STATS`, `[E ${data.id}] @ ${data.floor} [${data.direction}] \r\n ======================================================================`)
     })
   }
 
+  /**
+   * Register elevator into the pool
+   */
   register (elevator) {
     this.elevators.push(elevator)
   }
 
+  /**
+   * Pickup request
+   * @param {integer} floor where the elevator has to stop
+   * @param {enum} direction (UP | DOWN | undefined)
+   */
   pickup (floor, direction) {
     return this.request(floor, direction)
   }
 
+  /**
+   * Drop off request
+   * @param {integer} floor where the elevator has to stop
+   * @param {integer} elevatorIdx only used on drop off requests
+   */
   dropoff (floor, elevatorIdx) {
     return this.request(floor, undefined, elevatorIdx)
   }
@@ -54,6 +73,7 @@ class Controller {
   /**
    * Pickup / Drop off request
    * @param {integer} floor where the elevator has to stop
+   * @param {enum} direction (UP | DOWN | undefined)
    * @param {integer} elevatorIdx only used on drop off requests
    * @return {Object} {ETA: integer (number of moves), elevatorIdx: integer}
    */
@@ -110,11 +130,10 @@ class Controller {
     }
   }
 
-  reporter (payload) {
-    // Debug(payload)
-    Debug(`>> STATS`, `[E ${payload.id}] @ ${payload.floor} [${payload.direction}] \r\n ======================================================================`)
-  }
-
+  /**
+   * Return the status report of one or all elevators
+   * @param {integer} elevatorIdx (optional)
+   */
   getStatus (elevatorIdx) {
     let status
     if (elevatorIdx) {
