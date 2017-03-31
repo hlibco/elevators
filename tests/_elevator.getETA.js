@@ -3,7 +3,6 @@ const Elevator = require('../src/elevator')
 const Constants = require('../src/constants')
 const Config = require('../demo/config')
 
-
 /**
  * @DEPRECATED - Removed from the implementation <elevator.js>
  * Creates the ETA based on a positve scenario:
@@ -11,7 +10,8 @@ const Config = require('../demo/config')
  * the travel in the current direction in order to impact
  * future travels in the opposite direction
  */
-getETA (floor, requestedDirection) {
+/*
+function getETA (floor, requestedDirection) {
   let moves = 0
 
   // Elevator is moving UP
@@ -75,6 +75,7 @@ getETA (floor, requestedDirection) {
 
   return moves * this.config.speed
 }
+*/
 
 // ELEVATOR UP
 // =======================
