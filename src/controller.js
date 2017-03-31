@@ -46,7 +46,7 @@ class Controller {
   request (floor, direction, elevatorIdx) {
     let ETA
     let elevator
-    let result
+    let response
 
     // Request made from inside the elevator (It's a Drop Off request)
     if (typeof elevatorIdx !== 'undefined') {
@@ -78,13 +78,19 @@ class Controller {
     Debug(`Assign: E ${elevatorIdx}`)
     Debug('---------------------------------')
 
-    result = elevator.request(floor, direction)
+    response = elevator.request(floor, direction)
 
     // @NOTE ETA is in number of moves (not in TIME! TBD)
     return {
-      ETA,
-      result,
-      elevatorIdx
+      elevator: {
+        id: elevatorIdx,
+        floor: ETA.floor
+      },
+      request: {
+        stopAt: floor,
+        direction
+      },
+      response
     }
   }
 
@@ -102,19 +108,21 @@ class Controller {
   }
 
   getStatus (elevatorIdx) {
+    let status
     if (elevatorIdx) {
       if (this.elevators[elevatorIdx]) {
-        return this.elevators[elevatorIdx].getStatus()
+        status = this.elevators[elevatorIdx].getStatus()
       } else {
         throw Error(Constants.ERROR_ELEVATOR_NOT_REGISTERED)
       }
     } else {
-      const status = {}
+      status = {}
       this.elevators.map((elevator, i) => {
         status[i] = elevator.getStatus()
       })
-      return JSON.stringify(status)
     }
+
+    return JSON.stringify(status)
   }
 }
 

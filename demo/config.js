@@ -1,8 +1,11 @@
 const config = {
+  // Building settings
   minFloor: 0, // ground floor
   maxFloor: 40, // pent house \o/
-  elevators: 3, // # of elevators in the building
-  speed: 1 // # of floors / unit of time
+  elevators: 3, // # of elevators
+
+  // Elevators settings
+  speed: 1 // speed of the elevators (# of floors / unit of time)
 
   // @NOTE can be tweaked to use "maxLoad"
   // @TODO Implement later

@@ -16,7 +16,7 @@
   "main": "./src/index",
   "license": "MIT",
   "scripts": {
-    "lint": "standard --verbose src/**/*.js tests/**/*.js | snazzy",
+    "lint": "standard --verbose src/**/*.js tests/**/*.js demo/**/*.js | snazzy",
     "_pretest": "npm run lint",
     "test": "NODE_ENV=test DEBUG=test,elevators:* DEBUG_COLORS=true ava",
     "check": "nsp check",
@@ -41,7 +41,8 @@
     "functions": 5,
     "branches": 5,
     "include": [
-      "src/**/*.js"
+      "src/**/*.js",
+      "demo/**/*.js"
     ],
     "exclude": [
       "src/**/*.spec.js"
@@ -65,7 +66,9 @@
   },
   "dependencies": {
     "ava": "0.17.0",
-    "debug": "2.6.2"
+    "body-parser": "^1.17.1",
+    "debug": "2.6.2",
+    "express": "^4.15.2"
   },
   "devDependencies": {
     "coveralls": "2.12.0",

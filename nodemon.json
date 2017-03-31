@@ -5,7 +5,8 @@
   ],
   "verbose": true,
   "watch": [
-    "src"
+    "src",
+    "demo"
   ],
   "env": {
     "NODE_ENV": "development",
@@ -13,5 +14,5 @@
     "DEBUG": "elevators:*",
     "DEBUG_COLORS": true
   },
-  "exec": "node src/index.js"
+  "exec": "node demo/index.js"
 }

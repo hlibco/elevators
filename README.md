@@ -9,6 +9,61 @@ This project implements an elevator system where users indicate the direction of
 
 ---
 
+## Installation
+
+`yarn` or `npm install`
+
+---
+
+## Settings
+
+Edit the file `config.js` with information about the building and each elevator in the grid.
+
+---
+
+## Start
+
+`npm start`
+
+---
+
+## Unit test
+
+`npm t` will execute all tests in the `/tests/**/*` and execute the **lint**.
+
+## Coverage test
+
+`npm run coverage` will run the coverage test, display the result in the console and publish it to **Coveralls.io**
+
+
+---
+
+## API
+
+All requests to the API are HTTP Requests handled by an Express Server and return a JSON object. The attribute `port` (3002) is defined in the file `nodemon.json`.
+
+
+#### Endpoints
+
+URL Parameters:
+- `floor`: integer *(required)*
+- `direction`: enum (up | down) *(required)*
+- `elevatorIdx`: integer (starts on 0)
+
+Request a pickup (request comes from the outside of the cabin)
+[GET] http://localhost:3002/v1/pickup/:floor/:direction
+
+Request a drop off (request comes from the inside of the cabin)
+[GET] http://localhost:3002/v1/dropoff/:floor/:elevatorIdx
+
+Query the state of all elevators
+[GET] http://localhost:3002/v1/status/
+
+Query the state of one specific elevator
+[GET] http://localhost:3002/v1/status/:elevatorIdx
+
+---
+
 ## Design
 
 Each elevator has its own queues to store the floors the elevator has to stop. Two queues are used per elevator.
@@ -58,10 +113,6 @@ How to dispatch a Pickup / Drop off request?
 This implementation allocates elevators to serve each request in a building in the following manner:
 - An elevator first serves requests in the same direction it's going to (if the requested floor is ahead) and putting on hold requests for the opposite direction.
 
-### (TODO)
-- Serving the requests according to the SLA (service level agreement) that sets the maximum waiting time from the request and the pick up.
-- The SLA is the same for all requests regardless of origin and destination.
-
 ---
 
 ## Constraints
@@ -85,49 +136,11 @@ This implementation allocates elevators to serve each request in a building in t
 
 ---
 
-## Installation
-
-`yarn` or `npm install`
-
----
-
-## Settings
-
-Edit the file `config.js` with information about the building and each elevator in the grid.
-
-(TODO)
-- Speed of each elevator
-- Floors served per elevator
-- SLA per floor where the request is made (maximum amount of time someone may wait until the elevator arrives)
-
----
-
-## Start
-
-`npm start`
-
----
-
-## Unit test
-
-`npm t` will execute all tests in the `/tests/**/*` and execute the **lint**.
-
-## Coverage test
-
-`npm run coverage` will run the coverage test, display the result in the console and publish it to **Coveralls.io**
-
-
----
-
-## API
-
-### .getState(elevator)
-Querying the state of the elevators (what floor are they on and where they are going)
-
-`elevator` is optional. If not defined, it returns the state of all elevators (current floor / next floor).
-
----
-
 ## TODO
 
 - Unregister elevators `controller.js` (eg: for maintenance)
+
+(settings)
+- Speed of each elevator
+- Floors served per elevator
+- SLA per floor where the request is made (maximum amount of time someone may wait until the elevator arrives)

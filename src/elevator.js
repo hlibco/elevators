@@ -2,10 +2,13 @@
 
 // const Debug = require('debug')('elevators:elevator')
 const Constants = require('./constants')
+const DOWN = Constants.DOWN
+const UP = Constants.UP
 
 class Elevator {
   constructor (id, reporter, config) {
     this.id = id
+    this.state =
     this.config = config
     this.reporter = reporter
 
@@ -39,13 +42,13 @@ class Elevator {
   getMaxETA (floor, requestedDirection) {
     let moves = 0
     if (!requestedDirection) {
-      requestedDirection = floor > this.floor ? Constants.UP : Constants.DOWN
+      requestedDirection = floor > this.floor ? UP : DOWN
     }
 
     // Elevator is moving UP
-    if (this.direction === Constants.UP) {
+    if (this.direction === UP) {
       // Request to go UP
-      if (requestedDirection === Constants.UP) {
+      if (requestedDirection === UP) {
         if (floor > this.floor) {
           moves = Math.abs(floor - this.floor)
         } else {
@@ -64,9 +67,9 @@ class Elevator {
         moves += Math.abs(this.config.maxFloor - floor)
       }
     // Elevator is moving DOWN
-    } else if (this.direction === Constants.DOWN) {
+    } else if (this.direction === DOWN) {
       // Request to go DOWN
-      if (requestedDirection === Constants.DOWN) {
+      if (requestedDirection === DOWN) {
         if (floor < this.floor) {
           moves = Math.abs(this.floor - floor)
         } else {
@@ -92,7 +95,7 @@ class Elevator {
     return {
       time: moves * this.config.speed,
       floor: this.floor,
-      direction: this.direction || 'IDLE' // current direction
+      direction: this.direction // current direction
     }
   }
 
@@ -107,9 +110,9 @@ class Elevator {
     let moves = 0
 
     // Elevator is moving UP
-    if (this.direction === Constants.UP) {
+    if (this.direction === UP) {
       // Request to go UP
-      if (requestedDirection === Constants.UP) {
+      if (requestedDirection === UP) {
         if (floor > this.floor) {
           moves = floor - this.floor
         } else {
@@ -134,9 +137,9 @@ class Elevator {
         moves += Math.abs(higherFloorDown - floor)
       }
     // Elevator is moving DOWN
-    } else if (this.direction === Constants.DOWN) {
+    } else if (this.direction === DOWN) {
       // Request to go DOWN
-      if (requestedDirection === Constants.DOWN) {
+      if (requestedDirection === DOWN) {
         if (floor < this.floor) {
           moves = this.floor - floor
         } else {
@@ -180,21 +183,21 @@ class Elevator {
 
   request (floor, direction) {
     // Direction set means Pickup request
-    if (direction === Constants.UP) {
+    if (direction === UP) {
       this.AddQueueUp(floor)
-    } else if (direction === Constants.UP) {
+    } else if (direction === UP) {
       this.AddQueueDown(floor)
 
     // Direction is not set means it is a dropoff request
     } else {
-      if (this.direction === Constants.UP) {
+      if (this.direction === UP) {
         // On the way
         if (this.floor < floor) {
           this.AddQueueUp(floor)
         } else {
           this.AddQueueDown(floor)
         }
-      } else if (this.direction === Constants.DOWN) {
+      } else if (this.direction === DOWN) {
         // On the way
         if (this.floor > floor) {
           this.AddQueueDown(floor)
@@ -208,14 +211,18 @@ class Elevator {
     this.report()
   }
 
+  /**
+   * Set the
+   * and the current queue in progress
+   */
   stop (floor) {
     // Set current floor
     this.currentFloor = floor
 
     // Remove floor from the queue
-    if (this.direction === Constants.UP) {
+    if (this.direction === UP) {
       this.queueUp.shift()
-    } else if (this.direction === Constants.DOWN) {
+    } else if (this.direction === DOWN) {
       this.queueDown.pop()
     }
 
@@ -223,13 +230,17 @@ class Elevator {
     this.report()
   }
 
+  /**
+   * Set the direction based on the current direction
+   * and the current queue in progress
+   */
   setDirection () {
     let direction = null
 
-    if (this.queueUp.length > 0 && this.direction !== Constants.DOWN) {
-      direction = Constants.UP
-    } else if (this.queueDown.length > 0 && this.direction !== Constants.UP) {
-      direction = Constants.DOWN
+    if (this.queueUp.length > 0 && this.direction !== DOWN) {
+      direction = UP
+    } else if (this.queueDown.length > 0 && this.direction !== UP) {
+      direction = DOWN
     }
 
     this.direction = direction
@@ -263,6 +274,15 @@ class Elevator {
       floor: this.floor,
       direction: this.direction
     })
+  }
+
+  handler (req, res) {
+    const data = {
+      status: 'OK'
+    }
+    res.writeHead(200, {'Content-Type': 'application/json'})
+    res.write(data)
+    res.end()
   }
 }
 

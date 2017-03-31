@@ -1,7 +1,7 @@
 import test from 'ava'
 const Elevator = require('../src/elevator')
 const Constants = require('../src/constants')
-const Config = require('../src/config')
+const Config = require('../demo/config')
 
 // ELEVATOR UP
 // =======================
@@ -10,53 +10,64 @@ test(`ETA - elevator is going UP, user is going UP (on the way)`, t => {
   elevator.floor = 3
   elevator.direction = Constants.UP
 
+  elevator.queueUp = [5, 6, 7, 8]
+  elevator.queueDown = [10]
+
   // 3 -> 10 = 7
 
-  const res = elevator.getMaxETA(10, Constants.UP)
+  const res = elevator.getETA(10, Constants.UP)
 
-  t.is(res.time, 7 * Config.speed)
+  t.is(res, 7)
 })
 
 test(`ETA - elevator is going UP, user is going UP (not on the way)`, t => {
   const elevator = new Elevator(0, null, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
-  const requestedFloor = 2
-  const res = elevator.getMaxETA(requestedFloor, Constants.UP)
 
-  let moves = 0
-  moves += Math.abs(elevator.floor - Config.maxFloor)
-  moves += Math.abs(Config.maxFloor - Config.minFloor)
-  moves += Math.abs(Config.minFloor - requestedFloor)
-  t.is(res.time, moves * Config.speed)
+  elevator.queueUp = [8]
+  elevator.queueDown = []
+
+  // 3 -> 8 = 5
+  // 8 -> 2 = 6
+
+  const res = elevator.getETA(2, Constants.UP)
+
+  t.is(res, 11)
 })
 
 test(`ETA - elevator is going UP, user is going DOWN (on the way)`, t => {
   const elevator = new Elevator(0, null, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
-  const requestedFloor = 5
-  const res = elevator.getMaxETA(requestedFloor, Constants.DOWN)
 
-  let moves = 0
-  moves += Math.abs(elevator.floor - Config.maxFloor)
-  moves += Math.abs(Config.maxFloor - requestedFloor)
+  elevator.queueUp = [8]
+  elevator.queueDown = [12]
 
-  t.is(res.time, moves * Config.speed)
+  // 3 -> 8 = 5
+  // 8 -> 12 = 4
+  // 12 -> 5 = 7
+
+  const res = elevator.getETA(5, Constants.DOWN)
+
+  t.is(res, 16)
 })
 
 test(`ETA - elevator is going UP, user is going DOWN (not on the way)`, t => {
   const elevator = new Elevator(0, null, Config)
   elevator.floor = 3
   elevator.direction = Constants.UP
-  const requestedFloor = 2
-  const res = elevator.getMaxETA(requestedFloor, Constants.DOWN)
 
-  let moves = 0
-  moves += Math.abs(elevator.floor - Config.maxFloor)
-  moves += Math.abs(Config.maxFloor - requestedFloor)
+  elevator.queueUp = [8]
+  elevator.queueDown = [12]
 
-  t.is(res.time, moves * Config.speed)
+  // 3 -> 8 = 5
+  // 8 -> 12 = 4
+  // 12 -> 2 = 10
+
+  const res = elevator.getETA(2, Constants.DOWN)
+
+  t.is(res, 19)
 })
 
 // ELEVATOR DOWN
@@ -66,24 +77,30 @@ test(`ETA - elevator is going DOWN, user is going DOWN (on the way)`, t => {
   elevator.floor = 30
   elevator.direction = Constants.DOWN
 
-  // 30 -> 4 = 26
+  elevator.queueUp = [5, 6, 7, 8]
+  elevator.queueDown = [10]
 
-  const res = elevator.getMaxETA(4, Constants.DOWN)
+  // 30 -> 10 = 20
+  // 10 -> 4 = 6
 
-  t.is(res.time, 26 * Config.speed)
+  const res = elevator.getETA(4, Constants.DOWN)
+
+  t.is(res, 26)
 })
 
 test(`ETA - elevator is going DOWN, user is going DOWN (not on the way)`, t => {
   const elevator = new Elevator(0, null, Config)
   elevator.floor = 15
   elevator.direction = Constants.DOWN
-  const requestedFloor = 17
-  const res = elevator.getMaxETA(17, Constants.DOWN)
 
-  let moves = 0
-  moves += Math.abs(elevator.floor - Config.minFloor)
-  moves += Math.abs(Config.maxFloor - Config.minFloor)
-  moves += Math.abs(Config.maxFloor - requestedFloor)
+  elevator.queueUp = [8]
+  elevator.queueDown = [10]
 
-  t.is(res.time, moves * Config.speed)
+  // 15 -> 10 = 5
+  // 10 -> 8 = 2
+  // 8 -> 17 = 9
+
+  const res = elevator.getETA(17, Constants.DOWN)
+
+  t.is(res, 16)
 })
